@@ -16,8 +16,7 @@ export default function useAccessibleBlockLink(props) {
   // Confirm that a main click property is provided to handle the click accessibility.
   if (!props) {
     throw Error(
-      // @TODO - is this phrased well?
-      '`useAccessibleBlockLink` requires a `mainClick` element ref that determines the behavior of clicking the outer wrapping node.'
+      "`useAccessibleBlockLink` requires an element ref as it's props that provides back a click event for the wrapping container element and determines what link to fire based on where the users click event occurs."
     );
   }
 
