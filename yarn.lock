@@ -2615,7 +2615,7 @@ jest-each@^27.2.5:
     jest-util "^27.2.5"
     pretty-format "^27.2.5"
 
-jest-environment-jsdom@^27, jest-environment-jsdom@^27.2.5:
+jest-environment-jsdom@^27.2.5:
   version "27.3.0"
   resolved "https://registry.npmjs.org/jest-environment-jsdom/-/jest-environment-jsdom-27.3.0.tgz#bdf6282ff12a68fbc77cb26d6f56c6bddddd5f58"
   integrity sha512-2R1w1z7ZlQkK22bo/MrMp7ItuCxXXFspn3HNdbusbtW4OfutaPNWPmAch1Shtuu7G75jEnDb2q0PXSfFD6kEHQ==
@@ -3844,6 +3844,11 @@ typedarray-to-buffer@^3.1.5:
   integrity sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==
   dependencies:
     is-typedarray "^1.0.0"
+
+typescript@^4.5.3:
+  version "4.5.3"
+  resolved "https://registry.npmjs.org/typescript/-/typescript-4.5.3.tgz#afaa858e68c7103317d89eb90c5d8906268d353c"
+  integrity sha512-eVYaEHALSt+s9LbvgEv4Ef+Tdq7hBiIZgii12xXJnukryt3pMgJf6aKhoCZ3FWQsu6sydEnkg11fYXLzhLBjeQ==
 
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.0"
