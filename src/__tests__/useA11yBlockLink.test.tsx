@@ -4,11 +4,14 @@ import useA11yBlockLink, {EventObject} from '../';
 
 configure({testIdAttribute: 'data-test-id'});
 
-interface Props {
+interface BaseProps {
   testId: string;
   handleMainClick?(e: EventObject): void;
-  handleThirdClick?(e: EventObject): void;
   handleWrapperClick?(e: EventObject): void;
+}
+
+interface Props extends BaseProps {
+  handleThirdClick?(e: EventObject): void;
 }
 
 interface Location {
@@ -75,9 +78,9 @@ const AnchorDemo = ({
 
 const ButtonDemo = ({
   testId,
+  handleWrapperClick,
   handleMainClick,
   handleThirdClick,
-  handleWrapperClick,
 }: Props) => {
   const mainClickRef = useRef<HTMLButtonElement>();
 
@@ -117,6 +120,43 @@ const ButtonDemo = ({
       >
         Third Event
       </button>
+    </div>
+  );
+};
+
+const MultipleEventsDemo = ({
+  testId,
+  handleWrapperClick,
+  handleMainClick,
+}: BaseProps) => {
+  const mainClickRef = useRef();
+
+  const {handleClick: handleA11yClick} = useA11yBlockLink(mainClickRef);
+
+  const handleClick = (e: any) => {
+    handleWrapperClick(e);
+    handleA11yClick(e);
+  };
+
+  return (
+    <div onClick={handleClick} data-test-id={`${testId}-wrapper`}>
+      <a
+        // Sets a reference to what we want the main click to be
+        ref={mainClickRef}
+        data-test-id={`${testId}-main`}
+        onClick={(e: any) => {
+          handleMainClick(e);
+          // We expect this will not fire as href should always be fired first.
+          location.assign('#click');
+        }}
+        href="#main"
+      >
+        Main click
+      </a>
+      <a href="#second" data-test-id={`${testId}-second`}>
+        Change Page
+      </a>
+      <p data-test-id={`${testId}-description`}>Description text</p>
     </div>
   );
 };
@@ -483,6 +523,58 @@ describe('useA11yBlockLink', () => {
 
       // Expect that firing the event will update the URL what was fired
       expect(global.location.href.includes('#third')).toBe(true);
+    });
+  });
+
+  describe('Multiple Events', () => {
+    it('fires both onClick and href with onClick taking precedence over href when clicking on a non-interactive element like a native browser does', () => {
+      const mainClickMock = jest.fn();
+      const wrapperClickMock = jest.fn();
+
+      const {queryByTestId} = render(
+        <MultipleEventsDemo
+          testId="demo"
+          handleWrapperClick={wrapperClickMock}
+          handleMainClick={mainClickMock}
+        />
+      );
+
+      fireEvent.click(queryByTestId('demo-description'));
+
+      // Expect our wrapper to fire twice
+      // Wrapper should fire once when clicking the nested element
+      // Wrapper should fire a second time when calling our hook
+      expect(wrapperClickMock).toHaveBeenCalledTimes(2);
+
+      // Expect our main click does not run since it fallback was not invoked
+      expect(mainClickMock).toHaveBeenCalledTimes(1);
+
+      // Expect that firing the event will update the URL what was fired
+      expect(global.location.href.includes('#click')).toBe(true);
+    });
+
+    it('fires both onClick and href when clicking on the main element with onClick taking precedence over href like the native browser does', () => {
+      const mainClickMock = jest.fn();
+      const wrapperClickMock = jest.fn();
+
+      const {queryByTestId} = render(
+        <MultipleEventsDemo
+          testId="demo"
+          handleWrapperClick={wrapperClickMock}
+          handleMainClick={mainClickMock}
+        />
+      );
+
+      fireEvent.click(queryByTestId('demo-main'));
+
+      //
+      expect(wrapperClickMock).toHaveBeenCalledTimes(1);
+
+      // Expect our main click does not run since it fallback was not invoked
+      expect(mainClickMock).toHaveBeenCalledTimes(1);
+      console.log(global.location.href);
+      // Expect that firing the event will update the URL what was fired
+      expect(global.location.href.includes('#click')).toBe(true);
     });
   });
 });
