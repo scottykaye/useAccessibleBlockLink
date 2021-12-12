@@ -12,7 +12,7 @@ export interface Props {
   current?: Props;
 }
 
-export default function useAccessibleBlockLink(props: Props | any) {
+export default function useAccessibleBlockLink(props: Props) {
   // Confirm that a main click property is provided to handle the click accessibility.
   if (!props) {
     throw Error(
