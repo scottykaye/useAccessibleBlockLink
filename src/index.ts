@@ -1,18 +1,18 @@
-interface EventObject {
+export interface EventObject {
   target: {
     localName: string;
     href: string;
     type: string;
     role: string;
-  };
+  } | null;
 }
-interface Props {
+export interface Props {
   href?: string | null;
-  click?: () => {};
+  click?(): void;
   current?: Props;
 }
 
-export default function useAccessibleBlockLink(props: Props) {
+export default function useAccessibleBlockLink(props: Props | any) {
   // Confirm that a main click property is provided to handle the click accessibility.
   if (!props) {
     throw Error(
@@ -36,7 +36,8 @@ export default function useAccessibleBlockLink(props: Props) {
       if (mainClick.href) {
         location.assign(mainClick.href);
         // else if the main click has a click function attached we know we have a click event to fire
-      } else if (mainClick.click) {
+      }
+      if (mainClick.click) {
         mainClick.click();
       }
     }

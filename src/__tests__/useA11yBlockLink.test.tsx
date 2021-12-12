@@ -1,16 +1,43 @@
-import React, {useRef} from 'react';
+import React, {useRef, MouseEvent} from 'react';
 import {render, configure, fireEvent} from '@testing-library/react';
-import useA11yBlockLink from '../';
+import useA11yBlockLink, {EventObject} from '../';
 
 configure({testIdAttribute: 'data-test-id'});
 
-const AnchorDemo = ({testId, handleMainClick, handleThirdClick}) => {
-  const mainClickRef = useRef();
+interface Props {
+  testId: string;
+  handleMainClick?(e: EventObject): void;
+  handleThirdClick?(e: EventObject): void;
+  handleWrapperClick?(e: EventObject): void;
+}
+
+interface Location {
+  assign(url: string): void;
+  replace(url: string): void;
+  reload(): void;
+  href: string;
+  origin: string;
+  protocol: string;
+  host: string;
+  hostname: string;
+  port: string;
+  pathname: string;
+  search: string;
+  hash: string;
+}
+
+const AnchorDemo = ({
+  testId,
+  handleWrapperClick = () => {},
+  handleMainClick = () => {},
+  handleThirdClick,
+}: Props) => {
+  const mainClickRef = useRef<HTMLAnchorElement>();
 
   const {handleClick: handleA11yClick} = useA11yBlockLink(mainClickRef);
 
-  const handleClick = (e) => {
-    handleMainClick(e);
+  const handleClick = (e: any) => {
+    handleWrapperClick(e);
     handleA11yClick(e);
   };
 
@@ -21,6 +48,10 @@ const AnchorDemo = ({testId, handleMainClick, handleThirdClick}) => {
         ref={mainClickRef}
         data-test-id={`${testId}-main`}
         href="#main"
+        onClick={(e: any) => {
+          // capture a handler when the main click fires
+          handleMainClick(e);
+        }}
       >
         <img data-test-id={`${testId}-image`} src="#" />
       </a>
@@ -30,8 +61,8 @@ const AnchorDemo = ({testId, handleMainClick, handleThirdClick}) => {
       <p data-test-id={`${testId}-description`}>Description text</p>
       <button
         type="button"
-        onClick={() => {
-          handleThirdClick();
+        onClick={(e: any) => {
+          handleThirdClick(e);
           location.assign('#third');
         }}
         data-test-id={`${testId}-third`}
@@ -47,14 +78,14 @@ const ButtonDemo = ({
   handleMainClick,
   handleThirdClick,
   handleWrapperClick,
-}) => {
-  const mainClickRef = useRef();
+}: Props) => {
+  const mainClickRef = useRef<HTMLButtonElement>();
 
   const {handleClick: handleA11yClick} = useA11yBlockLink(mainClickRef);
 
   // We do not need handleA11yClick here in a button main click instance
   // The `handleA11yClick` from our hook will invoke the references onClick handler for us if a click is provided on the element we provide a ref to.
-  const handleClick = (e) => {
+  const handleClick = (e: any) => {
     handleWrapperClick(e);
     handleA11yClick(e);
   };
@@ -65,7 +96,7 @@ const ButtonDemo = ({
         // Sets a reference to what we want the main click to be
         ref={mainClickRef}
         data-test-id={`${testId}-main`}
-        onClick={(e) => {
+        onClick={(e: any) => {
           handleMainClick(e);
           location.assign('main');
         }}
@@ -78,8 +109,8 @@ const ButtonDemo = ({
       <p data-test-id={`${testId}-description`}>Description text</p>
       <button
         type="button"
-        onClick={() => {
-          handleThirdClick();
+        onClick={(e: any) => {
+          handleThirdClick(e);
           location.assign('#third');
         }}
         data-test-id={`${testId}-third`}
@@ -91,7 +122,7 @@ const ButtonDemo = ({
 };
 
 describe('useA11yBlockLink', () => {
-  let prevLocation;
+  let prevLocation: Location;
 
   beforeEach(() => {
     // Cache the global.location property as the previous location value
@@ -102,7 +133,7 @@ describe('useA11yBlockLink', () => {
         // Add the current location as the value
         ...global.location,
         // Add the assign function to help us determine the href has changed
-        assign(href) {
+        assign(href: string) {
           this.href = href;
         },
       },
@@ -120,12 +151,14 @@ describe('useA11yBlockLink', () => {
 
   describe('Anchor Link Demos', () => {
     it('fires main click when clicking the wrapping element', () => {
+      const wrapperClickMock = jest.fn();
       const mainClickMock = jest.fn();
       const thirdClickMock = jest.fn();
 
       const {queryByTestId} = render(
         <AnchorDemo
           testId="demo"
+          handleWrapperClick={wrapperClickMock}
           handleMainClick={mainClickMock}
           handleThirdClick={thirdClickMock}
         />
@@ -133,7 +166,12 @@ describe('useA11yBlockLink', () => {
 
       fireEvent.click(queryByTestId('demo-wrapper'));
 
-      // Expect click event to fire once
+      // Expect the handler to fire twice
+      // Once for initial handle click event
+      // A second time for `handleA11yClick` thats fired
+      expect(wrapperClickMock).toHaveBeenCalledTimes(2);
+
+      // We fired the main click we wanted the wrapper to fire once
       expect(mainClickMock).toHaveBeenCalledTimes(1);
 
       // Expect the internal button was not clicked
@@ -144,33 +182,55 @@ describe('useA11yBlockLink', () => {
     });
 
     it('fires main click when you click other non-interactive nested button elements within the card', () => {
+      const wrapperClickMock = jest.fn();
       const mainClickMock = jest.fn();
 
       const {queryByTestId} = render(
-        <AnchorDemo testId="demo" handleMainClick={mainClickMock} />
+        <AnchorDemo
+          testId="demo"
+          handleWrapperClick={wrapperClickMock}
+          handleMainClick={mainClickMock}
+        />
       );
 
       // Fire an event specifically on the anchor tag
       fireEvent.click(queryByTestId('demo-image'));
 
-      // Expect the wrapper click to fire
-      expect(mainClickMock).toHaveBeenCalledTimes(1);
+      // Expect the main click to fire twice
+      // Expect to fire once when we click the image since it's contained in the main click
+      // Expect the hook to also fire to validate what should happen
+      expect(mainClickMock).toHaveBeenCalledTimes(2);
+
+      // Fires twice as well
+      // Fires once when we hit image contained inside
+      // Fires a second time for hook fallback
+      expect(wrapperClickMock).toHaveBeenCalledTimes(2);
 
       // Expect the href to match the href we fired
       expect(global.location.href.includes('#main')).toBe(true);
     });
 
     it('fires main click when you click other non-interactive element within the card', () => {
+      const wrapperClickMock = jest.fn();
       const mainClickMock = jest.fn();
 
       const {queryByTestId} = render(
-        <AnchorDemo testId="demo" handleMainClick={mainClickMock} />
+        <AnchorDemo
+          testId="demo"
+          handleWrapperClick={wrapperClickMock}
+          handleMainClick={mainClickMock}
+        />
       );
 
       // Fire an event specifically on the anchor tag
       fireEvent.click(queryByTestId('demo-description'));
 
-      // Expect the wrapper click to fire
+      // Expect the wrapper to fire twice
+      // Fires once when we hit the non-interactive description inside
+      // Fires a second time for hook fallback
+      expect(wrapperClickMock).toHaveBeenCalledTimes(2);
+
+      // Expect the main click to fire once when it's called on fallback inside the hook
       expect(mainClickMock).toHaveBeenCalledTimes(1);
 
       // Expect the href to matches the href we fired
@@ -178,11 +238,7 @@ describe('useA11yBlockLink', () => {
     });
 
     it("doesn't trigger main click when interacting with nested anchor link", () => {
-      const mainClickMock = jest.fn();
-
-      const {queryByTestId} = render(
-        <AnchorDemo handleMainClick={mainClickMock} testId="demo" />
-      );
+      const {queryByTestId} = render(<AnchorDemo testId="demo" />);
 
       // Fire an event specifically on the second anchor tag
       fireEvent.click(queryByTestId('demo-second'));
@@ -198,11 +254,7 @@ describe('useA11yBlockLink', () => {
     });
 
     it('successfully fires correct values for either the main or the secondary links', () => {
-      const mainClickMock = jest.fn();
-
-      const {queryByTestId} = render(
-        <AnchorDemo handleMainClick={mainClickMock} testId="demo" />
-      );
+      const {queryByTestId} = render(<AnchorDemo testId="demo" />);
 
       // Fire an event specifically on the second anchor tag
       fireEvent.click(queryByTestId('demo-second'));
@@ -224,12 +276,14 @@ describe('useA11yBlockLink', () => {
     });
 
     it('fires the internal button event when clicking the third button', () => {
+      const wrapperClickMock = jest.fn();
       const mainClickMock = jest.fn();
       const thirdClickMock = jest.fn();
 
       const {queryByTestId} = render(
         <AnchorDemo
           testId="demo"
+          handleWrapperClick={wrapperClickMock}
           handleMainClick={mainClickMock}
           handleThirdClick={thirdClickMock}
         />
@@ -237,8 +291,11 @@ describe('useA11yBlockLink', () => {
 
       fireEvent.click(queryByTestId('demo-third'));
 
-      // Expect a main click was fired since we hit the onClick handler
-      expect(mainClickMock).toHaveBeenCalledTimes(1);
+      // Expect a wrapper click is fired since we're firing the event on the wrapper
+      expect(wrapperClickMock).toHaveBeenCalledTimes(1);
+
+      // Expect that we don't fire a main click
+      expect(mainClickMock).toHaveBeenCalledTimes(0);
 
       // Expect the internal button was clicked
       expect(thirdClickMock).toHaveBeenCalledTimes(1);
@@ -299,6 +356,10 @@ describe('useA11yBlockLink', () => {
       // Expect it to fire once for the button
       // Expect it to fire a second time due to clicking on the nested image
       expect(mainClickMock).toHaveBeenCalledTimes(2);
+      // The wrapper should fire twice
+      // Once since we're clicking a nested event
+      // A second time when we run our hook
+      expect(wrapperClickMock).toHaveBeenCalledTimes(2);
 
       // Expect the href to match the location we assigned
       expect(global.location.href.includes('main')).toBe(true);
