@@ -1,6 +1,6 @@
 import React, {useRef, MouseEvent} from 'react';
 import {render, configure, fireEvent} from '@testing-library/react';
-import useA11yBlockLink, {EventObject} from '../';
+import useAccessibleBlockLink, {EventObject} from '../';
 
 configure({testIdAttribute: 'data-test-id'});
 
@@ -37,7 +37,7 @@ const AnchorDemo = ({
 }: Props) => {
   const mainClickRef = useRef<HTMLAnchorElement>();
 
-  const {handleClick: handleA11yClick} = useA11yBlockLink(mainClickRef);
+  const {handleClick: handleA11yClick} = useAccessibleBlockLink(mainClickRef);
 
   const handleClick = (e: any) => {
     handleWrapperClick(e);
@@ -84,7 +84,7 @@ const ButtonDemo = ({
 }: Props) => {
   const mainClickRef = useRef<HTMLButtonElement>();
 
-  const {handleClick: handleA11yClick} = useA11yBlockLink(mainClickRef);
+  const {handleClick: handleA11yClick} = useAccessibleBlockLink(mainClickRef);
 
   // We do not need handleA11yClick here in a button main click instance
   // The `handleA11yClick` from our hook will invoke the references onClick handler for us if a click is provided on the element we provide a ref to.
@@ -131,7 +131,7 @@ const MultipleEventsDemo = ({
 }: BaseProps) => {
   const mainClickRef = useRef<HTMLAnchorElement>();
 
-  const {handleClick: handleA11yClick} = useA11yBlockLink(mainClickRef);
+  const {handleClick: handleA11yClick} = useAccessibleBlockLink(mainClickRef);
 
   const handleClick = (e: any) => {
     handleWrapperClick(e);
@@ -161,7 +161,7 @@ const MultipleEventsDemo = ({
   );
 };
 
-describe('useA11yBlockLink', () => {
+describe('useAccessibleBlockLink', () => {
   let prevLocation: Location;
 
   beforeEach(() => {
