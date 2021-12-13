@@ -1,6 +1,6 @@
 {
   "name": "useAccessibleBlockLink",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A reusable react hook that preserves a components semantics to deliver visual blocks link user interfaces. Handles containing multiple buttons or anchor links.",
   "main": "index.ts",
   "author": "Scott Kaye <scottykaye.web@gmail.com>",
