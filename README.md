@@ -1,4 +1,4 @@
-# Semantic Block Link
+# Semantic Block Links
 
 `useAccessibleBlockLink` is a reusable react hook that preserves a components semantic accessibility to create a visual block link. This hook supports multiple links within the same block.
 
