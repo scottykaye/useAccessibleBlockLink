@@ -118,15 +118,6 @@ This project wouldn't exist without the collaboration to resolve this issue. The
   <a href="https://github.com/hamlim"><img src="https://avatars.githubusercontent.com/u/5579638?v=4" width="33" height="33"/></a>
 </div>
 
-## Updates coming soon
-
-- React Router tests
-  - Working on how to mock refs here with react router 6
-  - E.preventDefault Tests
-- Readme
-- Contributor guide
-- Demo's
-
 ## Contribution Guide
 
 ### Setup
@@ -151,7 +142,3 @@ Provide:
 - An example of the code either:
   - A Pull Request demonstrating the issue.
   - CodeSandbox or Github repository with clear example of the issue.
-
-```
-
-```
