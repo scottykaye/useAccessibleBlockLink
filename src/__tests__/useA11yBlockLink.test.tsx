@@ -129,7 +129,7 @@ const MultipleEventsDemo = ({
   handleWrapperClick,
   handleMainClick,
 }: BaseProps) => {
-  const mainClickRef = useRef();
+  const mainClickRef = useRef<HTMLAnchorElement>();
 
   const {handleClick: handleA11yClick} = useA11yBlockLink(mainClickRef);
 
@@ -572,7 +572,7 @@ describe('useA11yBlockLink', () => {
 
       // Expect our main click does not run since it fallback was not invoked
       expect(mainClickMock).toHaveBeenCalledTimes(1);
-      console.log(global.location.href);
+
       // Expect that firing the event will update the URL what was fired
       expect(global.location.href.includes('#click')).toBe(true);
     });

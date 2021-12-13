@@ -23,6 +23,7 @@ export default function useAccessibleBlockLink(props: Props) {
   function handleClick(e: EventObject) {
     // Check to see if the ref provided is using state or the useRef hook.
     const mainClick = props.current instanceof Element ? props.current : props;
+
     // Only hoist a click if we are using the hook and we are not clicking on a button or anchor link thats nested.
     // Check that we are not making another element into a button with role.
     // Confirm the element does not have a type. This failsafe confirms we are not firing on form elements or button types
