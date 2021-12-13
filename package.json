@@ -34,5 +34,8 @@
   "scripts": {
     "test": "jest",
     "typeCheck": "tsc --project tsconfig.json --noEmit --allowJs false"
+  },
+  "publishConfig": {
+    "registry": "https://registry.yarnpkg.com"
   }
 }
