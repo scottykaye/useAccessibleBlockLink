@@ -1,9 +1,10 @@
 {
   "name": "use-accessible-block-link",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A reusable react hook that preserves a components semantics to deliver visual blocks link user interfaces. Handles containing multiple buttons or anchor links.",
-  "main": "index.ts",
-  "author": "Scott Kaye <scottykaye.web@gmail.com>",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "Scott Kaye",
   "repository": "https://github.com/scottykaye/useAccessibleBlockLink",
   "keywords": [
     "accessible",
@@ -33,9 +34,7 @@
   },
   "scripts": {
     "test": "jest",
-    "typeCheck": "tsc --project tsconfig.json --noEmit --allowJs false"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org"
+    "typeCheck": "tsc --project tsconfig.json --noEmit --allowJs false",
+    "build": "babel src/ --out-dir ./dist --extensions '.ts,.tsx' && tsc --project tsconfig.json --outDir ./dist --allowJs false"
   }
 }
