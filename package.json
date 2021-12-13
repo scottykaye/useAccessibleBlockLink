@@ -1,5 +1,5 @@
 {
-  "name": "use-accessible-blockink",
+  "name": "use-accessible-block-link",
   "version": "1.0.0",
   "description": "A reusable react hook that preserves a components semantics to deliver visual blocks link user interfaces. Handles containing multiple buttons or anchor links.",
   "main": "index.ts",
